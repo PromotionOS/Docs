@@ -170,6 +170,30 @@ type Purchase struct {
 }
 ```
 
+### model/store.go
+
+```go
+package model
+
+type Store struct {
+    ID             string
+    TenantID       string
+    Name           string
+    DivisionID     string
+    Region         string
+    Address        string
+    StoreManagerID string
+}
+
+type StoreManager struct {
+    ID      string
+    StoreID string
+    TenantID string
+    Name    string
+    Email   string
+}
+```
+
 ---
 
 ## Domain Service Interfaces
@@ -217,6 +241,8 @@ type CatalogRepository interface {
     FindCategoryChildren(parentID string, tenantID string) ([]*model.Category, error)
     FindCategoryByUPC(upcCode string, tenantID string) (*model.Category, error)
     SaveExclusion(categoryID string, excluded bool, reason string, tenantID string) error
+    FindStoresByDivision(divisionID string, tenantID string) ([]*Store, error)
+    FindStoreManager(storeID string, tenantID string) (*StoreManager, error)
 }
 
 type CustomerRepository interface {
@@ -268,6 +294,16 @@ func (s *CatalogService) UpdateExclusion(categoryID string, excluded bool,
     // 2. Update exclusion flags in DB
     // 3. Publish CatalogItemExcluded event
     return ErrNotImplemented
+}
+
+func (s *CatalogService) GetStoresByDivision(divisionID string, tenantID string) ([]*StoreResponse, error) {
+    // TODO Catalog TL Sprint 2 — used by Notification Service for store manager routing
+    return nil, ErrNotImplemented
+}
+
+func (s *CatalogService) GetStoreManager(storeID string, tenantID string) (*StoreManagerResponse, error) {
+    // TODO Catalog TL Sprint 2
+    return nil, ErrNotImplemented
 }
 ```
 
@@ -334,6 +370,16 @@ func (h *CatalogHandler) GetCategory(c *gin.Context) {
 
 func (h *CatalogHandler) UpdateExclusion(c *gin.Context) {
     // TODO Team 4 Sprint 2
+    c.JSON(http.StatusNotImplemented, gin.H{"error": "not implemented"})
+}
+
+func (h *CatalogHandler) GetStoresByDivision(c *gin.Context) {
+    // TODO Catalog TL Sprint 2
+    c.JSON(http.StatusNotImplemented, gin.H{"error": "not implemented"})
+}
+
+func (h *CatalogHandler) GetStoreManager(c *gin.Context) {
+    // TODO Catalog TL Sprint 2
     c.JSON(http.StatusNotImplemented, gin.H{"error": "not implemented"})
 }
 ```
@@ -459,6 +505,8 @@ func main() {
     r.POST("/catalog/upcs/bulk", catalogH.GetUPCsBulk)
     r.GET("/catalog/category/:id", catalogH.GetCategory)
     r.POST("/catalog/exclusions", catalogH.UpdateExclusion)
+    r.GET("/stores", catalogH.GetStoresByDivision)
+    r.GET("/stores/:id/manager", catalogH.GetStoreManager)
 
     customerH := api.NewCustomerHandler(customerService)
     r.GET("/customers/:id", customerH.GetCustomer)
@@ -468,4 +516,32 @@ func main() {
     log.Printf("Catalog & Customer Service starting on port %s", port)
     r.Run(":" + port)
 }
+```
+
+---
+
+## DB Migration — Catalog Schema (001_catalog_schema.sql)
+
+```sql
+-- existing tables omitted for brevity
+
+CREATE TABLE IF NOT EXISTS catalog.stores (
+    id VARCHAR(255) NOT NULL,
+    tenant_id VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    division_id VARCHAR(255) NOT NULL,
+    region VARCHAR(255),
+    address VARCHAR(500),
+    store_manager_id VARCHAR(255),
+    PRIMARY KEY (id, tenant_id)
+);
+
+CREATE TABLE IF NOT EXISTS catalog.store_managers (
+    id VARCHAR(255) NOT NULL,
+    store_id VARCHAR(255) NOT NULL,
+    tenant_id VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id, tenant_id)
+);
 ```

@@ -102,12 +102,14 @@ graph LR
         CS["Campaign Service\nSpring Boot"]
         ES["Eligibility Service\nSpring Boot"]
         RS["Redemption Service\nSpring Boot"]
+        VS["Vendor Service\nSpring Boot"]
     end
 
     subgraph Railway - Go Services
         CCS["Catalog & Customer\nGo / Gin"]
         AS["Analytics Service\nGo / Gin"]
         EVS["Event Store\nGo / Gin"]
+        NS["Notification Service\nGo / Gin"]
     end
 
     subgraph Railway - Infrastructure
@@ -121,6 +123,8 @@ graph LR
         DB4[("Redemption DB")]
         DB5[("Analytics DB")]
         DB6[("Event Store DB\nappend-only")]
+        DB7[("Notification DB")]
+        DB8[("Vendor DB")]
     end
 
     MX --> FE
@@ -135,8 +139,10 @@ graph LR
     RS --> EB
     CCS --> EB
     AS --> EB
+    VS --> EB
 
     EB --> EVS
+    EB --> NS
 
     CS --> DB1
     ES --> DB2
@@ -144,6 +150,9 @@ graph LR
     RS --> DB4
     AS --> DB5
     EVS --> DB6
+    NS --> DB7
+    VS --> DB8
+    NS --> CCS
 ```
 
 ---
@@ -430,6 +439,84 @@ graph LR
 
 ---
 
+### Notification Service — Go / Gin
+
+```mermaid
+graph LR
+    subgraph API Layer
+        NC["NotificationHandler\n(internal only — no public API)\nWebSocket /ws/notify"]
+    end
+
+    subgraph Application Layer
+        NAS["NotificationService\nOrchestrates delivery"]
+    end
+
+    subgraph Domain Layer
+        NE["NotificationEvent\nValue Object\n\nrecipient: string\nchannel: EMAIL|WEBSOCKET|WEBHOOK\npayload: json"]
+        NREP["NotificationRepository\nInterface"]
+        SMROUT["StoreManagerRouter\nDomain Service\n\nresolveManager(storeID, tenantID)\nroute to correct recipient"]
+    end
+
+    subgraph Infrastructure Layer
+        NREPI["NotificationRepositoryImpl\nGorm / PostgreSQL"]
+        EC["EventConsumer\nRedis — ALL domain events\nincl. FundingProposalSubmitted\nFundingApproved\nFundingRejected"]
+        CATCL["CatalogServiceClient\nGET /stores/:id/manager\nresolves store manager email"]
+        EMAIL["EmailSender\nSMTP / SendGrid"]
+        WS["WebSocketHub\nbroadcast to connected clients"]
+        WH["WebhookDispatcher\nHTTP POST to tenant webhook URL"]
+    end
+
+    NC --> NAS
+    EC --> NAS
+    NAS --> SMROUT
+    SMROUT --> CATCL
+    NAS --> NE
+    NAS --> NREP
+    NREP --> NREPI
+    NAS --> EMAIL
+    NAS --> WS
+    NAS --> WH
+```
+
+---
+
+### Vendor Service — Java / Spring Boot
+
+```mermaid
+graph LR
+    subgraph API Layer
+        VC["VendorController\nPOST /vendors\nGET /vendors/:id\nPOST /vendors/:id/proposals\nGET /vendors/:id/proposals\nPUT /proposals/:id/approve\nPUT /proposals/:id/reject\nGET /vendors/:id/forecast"]
+    end
+
+    subgraph Application Layer
+        VAS["VendorApplicationService\nOrchestrates vendor ops"]
+    end
+
+    subgraph Domain Layer
+        VAG["Vendor\nAggregate Root\n\nsubmitProposal()\napproveProposal()\nrejectProposal()\nforecast()"]
+        FP["FundingProposal\nEntity\n\nvendorId\ncampaignId\ntotalAmount: Money\nvendorShare: Percentage\nstatus: PENDING|APPROVED|REJECTED"]
+        FORE["ForecastResult\nValue Object\n\nestimatedLift: Money\nestimatedROI: Percentage\nconfidence: float"]
+        AW["ApprovalWorkflow\nDomain Service\n\nvalidateProposal()\ncheckFundingThreshold()\nnotifyOnDecision()"]
+        VREP["VendorRepository\nInterface"]
+    end
+
+    subgraph Infrastructure Layer
+        VREPI["VendorRepositoryImpl\nJPA / PostgreSQL"]
+        EP["EventPublisher\nRedis\nFundingProposalSubmitted\nFundingApproved\nFundingRejected"]
+    end
+
+    VC --> VAS
+    VAS --> VAG
+    VAS --> AW
+    VAG --> FP
+    VAG --> FORE
+    VAS --> VREP
+    VREP --> VREPI
+    VAS --> EP
+```
+
+---
+
 ## Domain Events Catalog
 
 ```mermaid
@@ -439,6 +526,7 @@ graph LR
         CCS["Catalog & Customer"]
         RS["Redemption Service"]
         AS["Analytics Service"]
+        VS["Vendor Service"]
     end
 
     subgraph Event Bus
@@ -451,6 +539,7 @@ graph LR
         CS2["Campaign Service"]
         EVS["Event Store"]
         FE["Frontend"]
+        NS["Notification Service"]
     end
 
     CS -->|CampaignPublished| EB
@@ -461,12 +550,16 @@ graph LR
     RS -->|OfferRedeemed| EB
     RS -->|ClaimSubmitted| EB
     AS -->|BudgetExhausted| EB
+    VS -->|FundingProposalSubmitted| EB
+    VS -->|FundingApproved| EB
+    VS -->|FundingRejected| EB
 
     EB -->|CampaignPublished\nCampaignPaused\nCatalogItemExcluded\nSegmentUpdated| ES
     EB -->|CampaignPublished\nOfferRedeemed\nBudgetExhausted| AS2
-    EB -->|BudgetExhausted| CS2
+    EB -->|BudgetExhausted\nFundingApproved\nFundingRejected| CS2
     EB -->|ALL events| EVS
     EB -->|CampaignPaused\nBudgetExhausted| FE
+    EB -->|ALL events| NS
 ```
 
 ---
@@ -476,7 +569,7 @@ graph LR
 ```mermaid
 graph LR
     subgraph Campaign Context
-        CAM["Campaign\nAggregate Root"]
+        CAM["Campaign\nAggregate Root\n\nLifecycle:\nDRAFT → PENDING_APPROVAL\n(totalAmount ≥ $50K + FundingProposal)\n→ ACTIVE (on FundingApproved)\n→ PAUSED | ENDED"]
         FUND2["Funding Entity"]
         BUDG["Budget Value Object"]
         OFF["Offer Entity"]
@@ -525,6 +618,20 @@ graph LR
         ROIN["ROI Calculator"]
     end
 
+    subgraph Vendor Context
+        VAGN["Vendor\nAggregate Root"]
+        FPN["FundingProposal\nEntity"]
+        AWN["Approval Workflow"]
+        VAGN --- FPN
+        VAGN --- AWN
+    end
+
+    subgraph Notification Context
+        NSVC["NotificationService\nPure event consumer"]
+        SMRN["StoreManagerRouter"]
+        NSVC --- SMRN
+    end
+
     subgraph Event Store
         EVN["DomainEvent\nAppend-only"]
     end
@@ -535,11 +642,35 @@ graph LR
     Eligibility Context -->|EligibilityChecked| Redemption Context
     Redemption Context -->|OfferRedeemed| Analytics Context
     Analytics Context -->|BudgetExhausted| Campaign Context
+    Vendor Context -->|FundingApproved\nFundingRejected| Campaign Context
+    Vendor Context -->|ALL vendor events| Notification Context
+    Campaign Context -->|ALL campaign events| Notification Context
+    Redemption Context -->|ALL redemption events| Notification Context
+    Catalog Context -->|reads store manager| Notification Context
     Campaign Context -->|ALL events| Event Store
     Eligibility Context -->|ALL events| Event Store
     Redemption Context -->|ALL events| Event Store
     Analytics Context -->|ALL events| Event Store
+    Vendor Context -->|ALL events| Event Store
 ```
+
+---
+
+## Redis Channel Registry
+
+| Channel | Publisher | Consumers |
+|---------|-----------|-----------|
+| `promotionos.campaign.published` | Campaign Service | Eligibility, Analytics, Event Store, Notification |
+| `promotionos.campaign.paused` | Campaign Service | Eligibility, Frontend, Event Store, Notification |
+| `promotionos.campaign.budget.updated` | Campaign Service | Event Store, Notification |
+| `promotionos.catalog.item.excluded` | Catalog & Customer | Eligibility, Event Store, Notification |
+| `promotionos.customer.segment.updated` | Catalog & Customer | Eligibility, Event Store, Notification |
+| `promotionos.redemption.offer.redeemed` | Redemption Service | Analytics, Event Store, Notification |
+| `promotionos.redemption.claim.submitted` | Redemption Service | Event Store, Notification |
+| `promotionos.analytics.budget.exhausted` | Analytics Service | Campaign, Frontend, Event Store, Notification |
+| `promotionos.vendor.proposal.submitted` | Vendor Service | Event Store, Notification |
+| `promotionos.vendor.funding.approved` | Vendor Service | Campaign, Event Store, Notification |
+| `promotionos.vendor.funding.rejected` | Vendor Service | Campaign, Event Store, Notification |
 
 ---
 
@@ -743,12 +874,14 @@ graph LR
             CS["Campaign Service\nSpring Boot :8081"]
             ES["Eligibility Service\nSpring Boot :8082"]
             RS["Redemption Service\nSpring Boot :8083"]
+            VS["Vendor Service\nSpring Boot :8088"]
         end
 
         subgraph Go Services
             CCS["Catalog & Customer\nGo/Gin :8084"]
             AS["Analytics Service\nGo/Gin :8085"]
             EVS["Event Store\nGo/Gin :8086"]
+            NS["Notification Service\nGo/Gin :8087"]
         end
 
         subgraph Infrastructure
@@ -762,6 +895,8 @@ graph LR
             DB4[("Redemption DB\nPostgres :5435")]
             DB5[("Analytics DB\nPostgres :5436")]
             DB6[("Event Store DB\nPostgres :5437\nappend-only")]
+            DB7[("Notification DB\nPostgres :5438\nnotification schema")]
+            DB8[("Vendor DB\nPostgres :5439\nvendor schema")]
         end
     end
 
@@ -783,6 +918,11 @@ graph LR
     AS --> EB
     EVS --> DB6
     EB --> EVS
+    VS --> DB8
+    VS --> EB
+    NS --> DB7
+    EB --> NS
+    NS --> CCS
 ```
 
 ---
@@ -839,6 +979,8 @@ graph LR
 | Team 4 | Redemption Service | Java / Spring Boot | High — idempotency, immutability, claim lifecycle | No |
 | Team 5 | Analytics Service | Go / Gin | Medium — lift calc, real-time burn, ROI | Yes — double count on retry |
 | Team 6 | Frontend Dashboard | React.js | Medium — real-time updates, MX + CX views | No |
+| Team 7 | Vendor Service | Java / Spring Boot | High — funding proposals, approval workflow, forecasting | No |
+| Team 8 | Notification Service | Go / Gin | Medium — pure event consumer, multi-channel delivery, store manager routing | No |
 
 ---
 
@@ -861,6 +1003,8 @@ graph LR
         RS_SK["redemption-service-guide"]
         AS_SK["analytics-service-guide"]
         FE_SK["frontend-guide"]
+        VS_SK["vendor-service-guide\nFundingProposal model\nApproval workflow\nForecasting stubs"]
+        NS_SK["notification-service-guide\nEvent consumer setup\nStore manager routing\nMulti-channel delivery"]
     end
 
     subgraph Contract Skills
@@ -893,4 +1037,12 @@ graph LR
 
     Team6 --> SDD & ADR & PRR
     Team6 --> FE_SK
+
+    Team7 --> SDD & ADR & DDD2 & PRR
+    Team7 --> VS_SK
+    Team7 --> C1
+
+    Team8 --> SDD & ADR & PRR
+    Team8 --> NS_SK
+    Team8 --> C4
 ```

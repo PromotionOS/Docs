@@ -2,19 +2,24 @@
 
 > For: Facilitator
 > When: End of Sprint 4
-> Duration: ~10 minutes
+> Duration: ~15 minutes
 > Audience: All participants
 
 ---
 
 ## Setup Before Demo
 
-- [ ] All 6 services deployed and healthy on Railway
+- [ ] All 8 services deployed and healthy on Railway
+- [ ] Event Store live and healthy
 - [ ] Frontend deployed on Vercel
-- [ ] Test data seeded (all 12 campaigns, 12 customers, 48 UPCs)
+- [ ] Test data seeded (all 12 campaigns including camp-013, 12 customers, 48 UPCs)
 - [ ] Browser open on the Frontend Dashboard
 - [ ] Terminal open with Railway logs visible (optional but impressive)
-- [ ] All 30 validation scenarios passing
+- [ ] All validation scenarios passing
+- [ ] Camp-001 burnedAmount set to $47,400 (94.8%)
+- [ ] Camp-013 reset to DRAFT ($75K, vendor-pepsi-001) — approval workflow must fire live
+- [ ] Notification Service email delivery visible in logs
+- [ ] WebSocket connection confirmed active in browser dev tools
 
 ---
 
@@ -24,7 +29,7 @@ Before touching the screen:
 
 > "Before I show you what you built — let me tell you what Oracle Trade Management does. It is the industry standard for retail trade promotions. Kroger, Walmart, every major grocery chain uses it. Implementation costs between $2 million and $10 million. Licensing costs $500,000 a year. It takes 18 months to implement. And it looks like it was built in 2003 — because it was.
 >
-> What you are about to see is what you built today. 6 teams. 4 sprints. 8 hours. Let's go."
+> What you are about to see is what you built today. 8 teams. 4 sprints. 8 hours. 9 components — 8 services and a shared Event Store — all integrated and running in production. Let's go."
 
 ---
 
@@ -53,6 +58,7 @@ Fill funding:
 - Vendor ID: `vendor-pepsi-001`
 - Vendor Share: `70`
 - Kroger Share: `30`
+- Budget: `$25,000`
 
 Click Publish.
 
@@ -129,25 +135,39 @@ Say:
 
 ## Flow 3 — Budget Exhaustion (4 minutes)
 
-**What it shows:** Real-time budget burn. Auto-pause. Cross-service event flow. Alert on frontend.
+**What it shows:** Real-time budget burn. Auto-pause. Cross-service event flow. Geo-targeted notification. WebSocket alert on frontend.
 
 **This is the moment that lands.**
 
 Navigate to MX Dashboard.
 
-### Step 1 — Show camp-001 burn at 95.2%
+### Step 1 — Show camp-001 burn at 94.8%
 
 Point to `Weekend Mega Sale` in the campaign list.
 
-> "This campaign has burned 95.2% of its $50,000 budget. In Oracle TM — you would find this out tomorrow morning in a batch report. Here — look at the burn bar."
+> "This campaign has burned 94.8% of its $50,000 budget. In Oracle TM — you would find this out tomorrow morning in a batch report. Here — look at the burn bar."
 
-Show the red progress bar at 95.2%.
+Show the amber progress bar at 94.8%.
+
+### Step 2 — Trigger the final redemption
+
+POST one redemption of $100 via API or UI button.
+
+Wait. Watch the logs.
+
+Show in sequence:
+1. Redemption Service logs: `OfferRedeemed published`
+2. Analytics Service logs: `burn updated, 95.2%`
+3. Analytics Service logs: `BudgetExhausted published`
+4. Campaign Service logs: `CampaignPaused`
+5. Notification Service logs: `Resolving store managers for division MIDWEST → 12 recipients → email delivered`
+6. Frontend: alert banner appears in under 1 second via WebSocket
 
 Show campaign status: PAUSED.
 
 Show the alert banner: "Weekend Mega Sale has been paused — budget exhausted"
 
-### Step 2 — Explain what happened
+### Step 3 — Explain what happened
 
 > "Here is what happened automatically, with no human intervention:
 >
@@ -157,12 +177,13 @@ Show the alert banner: "Weekend Mega Sale has been paused — budget exhausted"
 > 4. Burn hit 95% — Analytics published BudgetExhausted
 > 5. Campaign Service consumed BudgetExhausted and paused the campaign
 > 6. Campaign published CampaignPaused
-> 7. Eligibility Service consumed CampaignPaused and removed the rules from its engine
-> 8. Frontend consumed CampaignPaused and showed you this alert
+> 7. Notification Service called Catalog Service to resolve which store managers in the midwest division to notify — 12 managers, not a broadcast to everyone
+> 8. Eligibility Service consumed CampaignPaused and removed the rules from its engine
+> 9. Frontend received CampaignPaused via WebSocket and showed you this alert in under one second
 >
-> Six services. Five domain events. Zero human intervention. All of it driven by the contracts your teams defined and respected."
+> Seven services. Six domain events. Zero human intervention. All of it driven by the contracts your teams defined and respected."
 
-### Step 3 — Prove offers stopped serving
+### Step 4 — Prove offers stopped serving
 
 Navigate to CX View.
 
@@ -176,15 +197,67 @@ Show results — Weekend Mega Sale is NOT in the eligible offers list.
 
 ---
 
+## Flow 4 — Approval Workflow (4 minutes)
+
+**What it shows:** Campaign lifecycle gate for large-budget campaigns. Vendor approval loop. Automatic state transition via domain events.
+
+**This is the newest flow — the one that required 8 teams to build together.**
+
+Navigate to MX Dashboard.
+
+### Step 1 — Show camp-013 in DRAFT
+
+Point to `Pepsi Summer Push` (camp-013) in the campaign list.
+
+> "This is a $75,000 campaign. Pepsi is the vendor. The MX team wants to publish it."
+
+### Step 2 — Attempt to publish — get blocked
+
+Click Publish on camp-013.
+
+Show the error: `FUNDING_APPROVAL_REQUIRED — campaigns with budget >= $50,000 require vendor funding approval before publishing`
+
+> "The system blocked it. A $75,000 campaign does not go live until the vendor approves the funding. This is a real business rule — no one hard-coded this check in the frontend. It is a domain rule enforced by Campaign Service."
+
+Show the Event Store log: `FundingProposalSubmitted published for camp-013`
+
+### Step 3 — Switch to Vendor approver view
+
+Navigate to Vendor Portal → Vendor Service (Team 7's service).
+
+Show the pending proposal for camp-013 visible in the approver queue.
+
+> "Vendor TL's service is listening. FundingProposalSubmitted arrived from the Event Store. The proposal is in the queue."
+
+Click Approve.
+
+> "Approver approves. Watch Campaign Service."
+
+### Step 4 — Camp-013 goes ACTIVE automatically
+
+Show Campaign Service logs: `FundingApproved received for camp-013 → status PENDING_APPROVAL → ACTIVE`
+
+Switch back to MX Dashboard.
+
+Show camp-013 status: ACTIVE.
+
+> "Nobody from the MX team did anything after clicking Publish. The system paused, waited for vendor approval, received it via a domain event, and activated the campaign automatically.
+>
+> Two TLs. Two services. Zero coordination beyond a contract skill that Team 7 wrote before implementing a single line of code."
+
+---
+
 ## The Close
 
-> "What you just saw is a fully functional trade promotions platform. It handles campaign lifecycle, eligibility rules with segment matching and exclusions, idempotent redemptions, real-time budget tracking, and automatic campaign management — all validated against real-world retail data.
+> "What you just saw is a fully functional trade promotions platform. It handles campaign lifecycle including a full funding approval workflow with automatic state transitions, eligibility rules with segment matching and exclusions, idempotent redemptions, real-time budget tracking, automatic campaign management, geo-targeted notifications routed by store division, vendor forecasting, and webhook delivery to external vendor systems. All validated against real-world retail data.
 >
 > Oracle charges $500,000 a year for this. You built the core in 8 hours.
 >
 > But here is what I actually want you to take away — it is not that you built it fast. It is HOW you built it.
 >
-> Every feature started with a spec. Every decision has an ADR. Every bug has an RCA. Every service respects its contracts. And Claude was there for every step — not writing your code for you, but making the distance between a requirement and working, validated, documented code shorter than it has ever been.
+> Every feature started with a spec. Every decision has an ADR. Every bug has an RCA. Every service respects its contracts. When Vendor TL needed Campaign TL to consume a new event — they did not send a Slack message. They wrote a contract skill. Campaign TL read it, built against it, and when Vendor TL deployed — it worked.
+>
+> And Claude was there for every step — not writing your code for you, but making the distance between a requirement and working, validated, documented code shorter than it has ever been.
 >
 > That is the multiplier. That is what you now know how to do."
 
@@ -203,3 +276,9 @@ If the budget exhaustion flow doesn't trigger live:
 - camp-001 is already PAUSED in test data at 95.2% burn
 - Show the pre-existing state and walk through the event sequence manually
 - The explanation of what happened is as powerful as watching it happen live
+
+If the approval workflow (Flow 4) doesn't fire live:
+
+- Show the Session 2 logs where camp-013 transitioned automatically
+- Walk through the FundingProposalSubmitted → FundingApproved → ACTIVE sequence from the log output
+- Emphasise that the contract skill was written before the code and both teams built against the same schema

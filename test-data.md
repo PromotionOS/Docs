@@ -978,11 +978,543 @@
 
 ---
 
+## Regions
+
+```json
+[
+  { "id": "region-central", "name": "Central", "divisionIds": ["division-midwest", "division-southwest"] },
+  { "id": "region-east",    "name": "East",    "divisionIds": ["division-southeast", "division-northeast"] },
+  { "id": "region-west",    "name": "West",    "divisionIds": ["division-west"] }
+]
+```
+
+---
+
+## Stores
+
+```json
+[
+  {
+    "id": "store-chicago-001",
+    "name": "Kroger Chicago Lincoln Park",
+    "divisionId": "division-midwest",
+    "regionId": "region-central",
+    "storeManagerId": "mgr-chicago-001",
+    "address": { "street": "2200 N Halsted St", "city": "Chicago", "state": "IL", "zip": "60614" }
+  },
+  {
+    "id": "store-chicago-002",
+    "name": "Kroger Chicago Wicker Park",
+    "divisionId": "division-midwest",
+    "regionId": "region-central",
+    "storeManagerId": "mgr-chicago-002",
+    "address": { "street": "1600 N Milwaukee Ave", "city": "Chicago", "state": "IL", "zip": "60647" }
+  },
+  {
+    "id": "store-columbus-001",
+    "name": "Kroger Columbus Short North",
+    "divisionId": "division-midwest",
+    "regionId": "region-central",
+    "storeManagerId": "mgr-columbus-001",
+    "address": { "street": "875 N High St", "city": "Columbus", "state": "OH", "zip": "43215" }
+  },
+  {
+    "id": "store-columbus-002",
+    "name": "Kroger Columbus Easton",
+    "divisionId": "division-midwest",
+    "regionId": "region-central",
+    "storeManagerId": "mgr-columbus-002",
+    "address": { "street": "3891 Easton Square Pl", "city": "Columbus", "state": "OH", "zip": "43219" }
+  },
+  {
+    "id": "store-indy-001",
+    "name": "Kroger Indianapolis Meridian",
+    "divisionId": "division-midwest",
+    "regionId": "region-central",
+    "storeManagerId": "mgr-indy-001",
+    "address": { "street": "4015 N Meridian St", "city": "Indianapolis", "state": "IN", "zip": "46208" }
+  },
+  {
+    "id": "store-detroit-001",
+    "name": "Kroger Detroit Midtown",
+    "divisionId": "division-midwest",
+    "regionId": "region-central",
+    "storeManagerId": "mgr-detroit-001",
+    "address": { "street": "4960 Woodward Ave", "city": "Detroit", "state": "MI", "zip": "48202" }
+  },
+  {
+    "id": "store-atlanta-001",
+    "name": "Kroger Atlanta Buckhead",
+    "divisionId": "division-southeast",
+    "regionId": "region-east",
+    "storeManagerId": "mgr-atlanta-001",
+    "address": { "street": "3330 Piedmont Rd NE", "city": "Atlanta", "state": "GA", "zip": "30305" }
+  },
+  {
+    "id": "store-atlanta-002",
+    "name": "Kroger Atlanta Midtown",
+    "divisionId": "division-southeast",
+    "regionId": "region-east",
+    "storeManagerId": "mgr-atlanta-002",
+    "address": { "street": "725 Ponce De Leon Ave NE", "city": "Atlanta", "state": "GA", "zip": "30306" }
+  },
+  {
+    "id": "store-charlotte-001",
+    "name": "Kroger Charlotte South End",
+    "divisionId": "division-southeast",
+    "regionId": "region-east",
+    "storeManagerId": "mgr-charlotte-001",
+    "address": { "street": "1601 Camden Rd", "city": "Charlotte", "state": "NC", "zip": "28203" }
+  },
+  {
+    "id": "store-nyc-001",
+    "name": "Kroger New York Upper East Side",
+    "divisionId": "division-northeast",
+    "regionId": "region-east",
+    "storeManagerId": "mgr-nyc-001",
+    "address": { "street": "1498 Third Ave", "city": "New York", "state": "NY", "zip": "10075" }
+  },
+  {
+    "id": "store-boston-001",
+    "name": "Kroger Boston Back Bay",
+    "divisionId": "division-northeast",
+    "regionId": "region-east",
+    "storeManagerId": "mgr-boston-001",
+    "address": { "street": "15 Westland Ave", "city": "Boston", "state": "MA", "zip": "02115" }
+  },
+  {
+    "id": "store-boston-002",
+    "name": "Kroger Boston Fenway",
+    "divisionId": "division-northeast",
+    "regionId": "region-east",
+    "storeManagerId": "mgr-boston-002",
+    "address": { "street": "1380 Boylston St", "city": "Boston", "state": "MA", "zip": "02215" }
+  },
+  {
+    "id": "store-la-001",
+    "name": "Kroger Los Angeles Silver Lake",
+    "divisionId": "division-west",
+    "regionId": "region-west",
+    "storeManagerId": "mgr-la-001",
+    "address": { "street": "2716 Hyperion Ave", "city": "Los Angeles", "state": "CA", "zip": "90027" }
+  },
+  {
+    "id": "store-la-002",
+    "name": "Kroger Los Angeles Westwood",
+    "divisionId": "division-west",
+    "regionId": "region-west",
+    "storeManagerId": "mgr-la-002",
+    "address": { "street": "10861 Weyburn Ave", "city": "Los Angeles", "state": "CA", "zip": "90024" }
+  },
+  {
+    "id": "store-seattle-001",
+    "name": "Kroger Seattle Capitol Hill",
+    "divisionId": "division-west",
+    "regionId": "region-west",
+    "storeManagerId": "mgr-seattle-001",
+    "address": { "street": "1401 Broadway", "city": "Seattle", "state": "WA", "zip": "98122" }
+  },
+  {
+    "id": "store-phoenix-001",
+    "name": "Kroger Phoenix Scottsdale",
+    "divisionId": "division-southwest",
+    "regionId": "region-central",
+    "storeManagerId": "mgr-phoenix-001",
+    "address": { "street": "7119 E Shea Blvd", "city": "Scottsdale", "state": "AZ", "zip": "85254" }
+  },
+  {
+    "id": "store-dallas-001",
+    "name": "Kroger Dallas Uptown",
+    "divisionId": "division-southwest",
+    "regionId": "region-central",
+    "storeManagerId": "mgr-dallas-001",
+    "address": { "street": "4142 Cedar Springs Rd", "city": "Dallas", "state": "TX", "zip": "75219" }
+  },
+  {
+    "id": "store-dallas-002",
+    "name": "Kroger Dallas Oak Lawn",
+    "divisionId": "division-southwest",
+    "regionId": "region-central",
+    "storeManagerId": "mgr-dallas-002",
+    "address": { "street": "3751 Lemmon Ave", "city": "Dallas", "state": "TX", "zip": "75219" }
+  },
+  {
+    "id": "store-denver-001",
+    "name": "Kroger Denver Capitol Hill",
+    "divisionId": "division-southwest",
+    "regionId": "region-central",
+    "storeManagerId": "mgr-denver-001",
+    "address": { "street": "900 E 11th Ave", "city": "Denver", "state": "CO", "zip": "80218" }
+  }
+]
+```
+
+---
+
+## Store Managers
+
+```json
+[
+  {
+    "id": "mgr-chicago-001",
+    "storeId": "store-chicago-001",
+    "name": "Patricia Okonkwo",
+    "email": "p.okonkwo@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-chicago-002",
+    "storeId": "store-chicago-002",
+    "name": "Marcus Webb",
+    "email": "m.webb@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-columbus-001",
+    "storeId": "store-columbus-001",
+    "name": "Sandra Reyes",
+    "email": "s.reyes@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-columbus-002",
+    "storeId": "store-columbus-002",
+    "name": "Derek Huang",
+    "email": "d.huang@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-indy-001",
+    "storeId": "store-indy-001",
+    "name": "Tonya Bridges",
+    "email": "t.bridges@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-detroit-001",
+    "storeId": "store-detroit-001",
+    "name": "James Kowalski",
+    "email": "j.kowalski@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-atlanta-001",
+    "storeId": "store-atlanta-001",
+    "name": "Denise Ware",
+    "email": "d.ware@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-atlanta-002",
+    "storeId": "store-atlanta-002",
+    "name": "Calvin Frost",
+    "email": "c.frost@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-charlotte-001",
+    "storeId": "store-charlotte-001",
+    "name": "Rhonda Simmons",
+    "email": "r.simmons@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-nyc-001",
+    "storeId": "store-nyc-001",
+    "name": "Anthony Rossi",
+    "email": "a.rossi@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-boston-001",
+    "storeId": "store-boston-001",
+    "name": "Claire Dunlap",
+    "email": "c.dunlap@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-boston-002",
+    "storeId": "store-boston-002",
+    "name": "Terrence Flynn",
+    "email": "t.flynn@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-la-001",
+    "storeId": "store-la-001",
+    "name": "Sofia Vega",
+    "email": "s.vega@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-la-002",
+    "storeId": "store-la-002",
+    "name": "Brian Nakamura",
+    "email": "b.nakamura@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-seattle-001",
+    "storeId": "store-seattle-001",
+    "name": "Megan Hollis",
+    "email": "m.hollis@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-phoenix-001",
+    "storeId": "store-phoenix-001",
+    "name": "Gilbert Moreno",
+    "email": "g.moreno@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-dallas-001",
+    "storeId": "store-dallas-001",
+    "name": "Latasha Greer",
+    "email": "l.greer@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-dallas-002",
+    "storeId": "store-dallas-002",
+    "name": "Paul Whitfield",
+    "email": "p.whitfield@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  },
+  {
+    "id": "mgr-denver-001",
+    "storeId": "store-denver-001",
+    "name": "Angela Tran",
+    "email": "a.tran@kroger.com",
+    "notificationPreferences": { "channels": ["EMAIL", "WEBSOCKET"], "events": ["CampaignPaused"] }
+  }
+]
+```
+
+---
+
+## Vendor Profiles
+
+```json
+[
+  {
+    "vendorId": "vendor-pepsi-001",
+    "name": "PepsiCo",
+    "contactEmail": "promos@pepsico.com",
+    "status": "ACTIVE",
+    "bankAccountId": "bank-pepsi-001"
+  },
+  {
+    "vendorId": "vendor-generalmills-001",
+    "name": "General Mills",
+    "contactEmail": "trade@generalmills.com",
+    "status": "ACTIVE",
+    "bankAccountId": "bank-genmills-001"
+  },
+  {
+    "vendorId": "vendor-kroger-own",
+    "name": "Kroger Own Brands",
+    "contactEmail": "ownbrands@kroger.com",
+    "status": "ACTIVE",
+    "bankAccountId": "bank-kroger-internal"
+  },
+  {
+    "vendorId": "vendor-oscar-meyer-001",
+    "name": "Oscar Mayer (Kraft Heinz)",
+    "contactEmail": "promotions@kraftheinz.com",
+    "status": "ACTIVE",
+    "bankAccountId": "bank-kraftheinz-001"
+  },
+  {
+    "vendorId": "vendor-nature-made-001",
+    "name": "Nature Made (Pharmavite)",
+    "contactEmail": "retail@pharmavite.com",
+    "status": "ACTIVE",
+    "bankAccountId": "bank-pharmavite-001"
+  },
+  {
+    "vendorId": "vendor-mead-001",
+    "name": "Mead (ACCO Brands)",
+    "contactEmail": "kroger@accobrands.com",
+    "status": "ACTIVE",
+    "bankAccountId": "bank-acco-001"
+  },
+  {
+    "vendorId": "vendor-altria-001",
+    "name": "Altria Group",
+    "contactEmail": "trade@altria.com",
+    "status": "ACTIVE",
+    "bankAccountId": "bank-altria-001"
+  },
+  {
+    "vendorId": "vendor-cocacola-001",
+    "name": "The Coca-Cola Company",
+    "contactEmail": "kroger-promos@coca-cola.com",
+    "status": "ACTIVE",
+    "bankAccountId": "bank-cocacola-001"
+  },
+  {
+    "vendorId": "vendor-quaker-001",
+    "name": "Quaker Oats (PepsiCo)",
+    "contactEmail": "quaker-trade@pepsico.com",
+    "status": "ACTIVE",
+    "bankAccountId": "bank-quaker-001"
+  },
+  {
+    "vendorId": "vendor-nestle-001",
+    "name": "Nestle USA",
+    "contactEmail": "retail-promos@nestle.com",
+    "status": "ACTIVE",
+    "bankAccountId": "bank-nestle-001"
+  }
+]
+```
+
+---
+
+## Campaign — camp-013 (Approval Workflow Trigger)
+
+```json
+{
+  "id": "camp-013",
+  "tenantId": "tenant-kroger-001",
+  "name": "Premium Beverage Mega Push",
+  "status": "DRAFT",
+  "offer": {
+    "type": "PCT_OFF",
+    "value": 25,
+    "upcScope": ["upc-cola-12pk", "upc-diet-cola-12pk", "upc-sparkling-12pk"]
+  },
+  "funding": {
+    "vendorId": "vendor-pepsi-001",
+    "vendorShare": 80,
+    "krogerShare": 20
+  },
+  "budget": {
+    "totalAmount": 75000.00,
+    "burnedAmount": 0,
+    "currency": "USD"
+  },
+  "dateRange": { "startDate": "2026-07-01", "endDate": "2026-07-31" },
+  "stackPermission": false,
+  "segmentRestriction": null,
+  "geoScope": ["division-all"],
+  "edgeCase": "totalAmount $75,000 > $50,000 approval threshold — requires FundingApproval before publish. PENDING_APPROVAL status expected on PUT /publish attempt."
+}
+```
+
+---
+
+## Notification Preferences (by Role)
+
+```json
+[
+  {
+    "role": "MX_TEAM",
+    "channels": ["EMAIL", "WEBSOCKET"],
+    "subscribedEvents": [
+      "CampaignPaused",
+      "BudgetExhausted",
+      "FundingApproved",
+      "FundingRejected"
+    ],
+    "note": "MX team members receive both email and real-time WebSocket alerts for all operational campaign events."
+  },
+  {
+    "role": "STORE_MANAGER",
+    "channels": ["EMAIL", "WEBSOCKET"],
+    "subscribedEvents": [
+      "CampaignPaused"
+    ],
+    "geoFilter": "divisionId — only campaigns whose geoScope includes the manager's divisionId",
+    "note": "Store managers are notified only for CampaignPaused events affecting campaigns active in their division."
+  },
+  {
+    "role": "VENDOR_CONTACT",
+    "channels": ["EMAIL"],
+    "subscribedEvents": [
+      "ClaimSubmitted",
+      "FundingProposalSubmitted",
+      "FundingApproved"
+    ],
+    "note": "Vendor contacts receive email-only notifications for claim activity and funding lifecycle events tied to their vendorId."
+  }
+]
+```
+
+---
+
+## Forecasting Benchmarks
+
+Lookup key: `category × promoType × season`. `liftFactor` is a multiplier applied to baseline daily sales to derive predicted daily sales during the promotion.
+
+```json
+[
+  { "category": "beverages",   "promoType": "PCT_OFF",   "season": "summer",  "liftFactor": 1.65 },
+  { "category": "beverages",   "promoType": "PCT_OFF",   "season": "winter",  "liftFactor": 1.30 },
+  { "category": "beverages",   "promoType": "PCT_OFF",   "season": "holiday", "liftFactor": 1.45 },
+  { "category": "beverages",   "promoType": "PCT_OFF",   "season": "spring",  "liftFactor": 1.40 },
+  { "category": "beverages",   "promoType": "BOGO",      "season": "summer",  "liftFactor": 1.80 },
+  { "category": "beverages",   "promoType": "BOGO",      "season": "winter",  "liftFactor": 1.35 },
+  { "category": "beverages",   "promoType": "AMT_OFF",   "season": "summer",  "liftFactor": 1.50 },
+  { "category": "beverages",   "promoType": "THRESHOLD", "season": "summer",  "liftFactor": 1.25 },
+  { "category": "breakfast",   "promoType": "PCT_OFF",   "season": "summer",  "liftFactor": 1.20 },
+  { "category": "breakfast",   "promoType": "PCT_OFF",   "season": "winter",  "liftFactor": 1.55 },
+  { "category": "breakfast",   "promoType": "PCT_OFF",   "season": "holiday", "liftFactor": 1.60 },
+  { "category": "breakfast",   "promoType": "PCT_OFF",   "season": "spring",  "liftFactor": 1.25 },
+  { "category": "breakfast",   "promoType": "BOGO",      "season": "summer",  "liftFactor": 1.30 },
+  { "category": "breakfast",   "promoType": "BOGO",      "season": "winter",  "liftFactor": 1.70 },
+  { "category": "breakfast",   "promoType": "AMT_OFF",   "season": "winter",  "liftFactor": 1.45 },
+  { "category": "breakfast",   "promoType": "THRESHOLD", "season": "holiday", "liftFactor": 1.35 },
+  { "category": "snacks",      "promoType": "PCT_OFF",   "season": "summer",  "liftFactor": 1.55 },
+  { "category": "snacks",      "promoType": "PCT_OFF",   "season": "winter",  "liftFactor": 1.40 },
+  { "category": "snacks",      "promoType": "PCT_OFF",   "season": "holiday", "liftFactor": 1.75 },
+  { "category": "snacks",      "promoType": "PCT_OFF",   "season": "spring",  "liftFactor": 1.45 },
+  { "category": "snacks",      "promoType": "BOGO",      "season": "summer",  "liftFactor": 1.70 },
+  { "category": "snacks",      "promoType": "BOGO",      "season": "holiday", "liftFactor": 1.90 },
+  { "category": "snacks",      "promoType": "AMT_OFF",   "season": "summer",  "liftFactor": 1.50 },
+  { "category": "snacks",      "promoType": "THRESHOLD", "season": "holiday", "liftFactor": 1.40 },
+  { "category": "meat",        "promoType": "PCT_OFF",   "season": "summer",  "liftFactor": 1.75 },
+  { "category": "meat",        "promoType": "PCT_OFF",   "season": "winter",  "liftFactor": 1.30 },
+  { "category": "meat",        "promoType": "PCT_OFF",   "season": "holiday", "liftFactor": 1.85 },
+  { "category": "meat",        "promoType": "PCT_OFF",   "season": "spring",  "liftFactor": 1.50 },
+  { "category": "meat",        "promoType": "BOGO",      "season": "summer",  "liftFactor": 2.00 },
+  { "category": "meat",        "promoType": "AMT_OFF",   "season": "summer",  "liftFactor": 1.65 },
+  { "category": "meat",        "promoType": "AMT_OFF",   "season": "holiday", "liftFactor": 1.80 },
+  { "category": "meat",        "promoType": "THRESHOLD", "season": "summer",  "liftFactor": 1.35 },
+  { "category": "condiments",  "promoType": "PCT_OFF",   "season": "summer",  "liftFactor": 1.60 },
+  { "category": "condiments",  "promoType": "PCT_OFF",   "season": "winter",  "liftFactor": 1.20 },
+  { "category": "condiments",  "promoType": "PCT_OFF",   "season": "holiday", "liftFactor": 1.35 },
+  { "category": "condiments",  "promoType": "PCT_OFF",   "season": "spring",  "liftFactor": 1.45 },
+  { "category": "condiments",  "promoType": "BOGO",      "season": "summer",  "liftFactor": 1.70 },
+  { "category": "condiments",  "promoType": "AMT_OFF",   "season": "summer",  "liftFactor": 1.55 },
+  { "category": "condiments",  "promoType": "THRESHOLD", "season": "summer",  "liftFactor": 1.25 }
+]
+```
+
+---
+
+## Approval Rules
+
+```json
+{
+  "approvalThreshold": 50000.00,
+  "approverRole": "MX_DIRECTOR",
+  "autoApproveBelow": 25000.00,
+  "currency": "USD",
+  "note": "Campaigns with totalAmount >= $50,000 require explicit FundingApproved event from MX_DIRECTOR before status can transition from PENDING_APPROVAL to ACTIVE. Campaigns below $25,000 are auto-approved on publish. Campaigns between $25,000 and $49,999.99 are approved on publish without director sign-off."
+}
+```
+
+---
+
 ## Validation Scenarios
 
 All teams validate their implementation against these scenarios. Pass/fail is explicit.
 
 **Sprint scope key:** S1 = Sprint 1, S2 = Sprint 2, S3 = Sprint 3 regression, S4 = Sprint 4 demo
+
+**Frontend note:** Frontend TL wires to live APIs from Sprint 1. Campaign Service and Analytics Service are pre-built and live from day one. Eligibility Service is live from end of Sprint 1. All Frontend scenarios validate against live services — no mock data.
 
 | # | Sprint | Scenario | Customer | Campaign | Input | Expected Output | Validates |
 |---|--------|----------|----------|----------|-------|----------------|-----------|
@@ -1015,4 +1547,14 @@ All teams validate their implementation against these scenarios. Pass/fail is ex
 | 27 | S2 | BudgetExhausted published exactly once | — | camp-001 | subsequent redemptions after pause | BudgetExhausted NOT re-emitted | Idempotent event |
 | 28 | S2 | Claim generated at T+24hrs | — | camp-002 | redeem-008 at SESSION_START_TIME | claim at SESSION_START_TIME+24hrs | Claim lifecycle |
 | 29 | S2 | Claim deduction = vendorShare % | — | camp-001 | discount: 6.99, vendorShare: 60% | deduction: 4.19 | Claim calculation |
-| 30 | S2 | Multi-segment sees all eligible offers | cust-011 | camp-002, camp-003, camp-004 | GET /offers | all three returned, ranked | Multi-segment |
+| 30 | S1 | Frontend: campaign list shows live data | — | camp-001,002,006,007 | GET /campaigns live | PAUSED/ACTIVE/SCHEDULED badges correct | Frontend live wire |
+| 31 | S2 | Multi-segment sees all eligible offers | cust-011 | camp-002, camp-003, camp-004 | GET /offers | all three returned, ranked | Multi-segment |
+| 32 | S1 | camp-013 publish blocked — needs approval | — | camp-013 | PUT /publish | 423 PENDING_APPROVAL | Approval threshold |
+| 33 | S2 | FundingApproved unblocks camp-013 publish | — | camp-013 | FundingApproved event received | campaign transitions to ACTIVE | Vendor approval flow |
+| 34 | S2 | FundingRejected keeps camp-013 in DRAFT | — | camp-013 | FundingRejected event received | campaign stays DRAFT, reason recorded | Vendor rejection flow |
+| 35 | S1 | Notification sent on CampaignPaused | — | camp-001 | CampaignPaused event | MX_TEAM email + WebSocket delivered | Notification delivery |
+| 36 | S2 | WebSocket delivers alert in real-time | Frontend client | camp-001 | BudgetExhausted event | alert fires < 1 second, no polling | WebSocket real-time |
+| 37 | S2 | Store manager notified for their division only | store-chicago-001 manager | camp-001 (midwest) | CampaignPaused | chicago/columbus/indy/detroit managers notified, NOT atlanta | Store geo routing |
+| 38 | S2 | Vendor notified on ClaimSubmitted | vendor-pepsi-001 | redeem-001 claim | ClaimSubmitted event | vendor-pepsi-001 contact receives email | Vendor notification |
+| 39 | S3 | Predicted lift returned for scheduled campaign | — | camp-013 | GET /vendor/forecasts?campaignId=camp-013 | predictedLift based on beverage × PCT_OFF × summer benchmark | Forecasting |
+| 40 | S3 | Burn velocity calculated for active campaign | — | camp-001 | GET /analytics/camp-001/burn-velocity | burnVelocity = burnedAmount / daysSinceStart | Burn velocity |

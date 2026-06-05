@@ -254,6 +254,98 @@ A document written when a bug is found, explaining what the bug is, why it was i
 
 ---
 
+---
+
+### Store
+A physical retail location within a Division. Stores are owned by the Catalog & Customer bounded context. The Notification Service resolves store managers by calling Catalog & Customer — it does not own store data.
+
+- **Fields:** storeId, name, divisionId, region, address
+- **Code:** `Store` entity in Catalog & Customer Service
+- **Not called:** Location, Site, Branch
+
+---
+
+### Store Manager
+The role responsible for store-level operations and the recipient of store-scoped notifications (budget exhaustion for campaigns running in their store, high redemption alerts).
+
+- **Code:** `StoreManager` entity in Catalog & Customer Service
+- **Not called:** Store Owner, Branch Manager
+
+---
+
+### Vendor
+A supplier company that funds Campaigns through Funding agreements. A Vendor is a first-class domain entity in the Vendor Service — not just a `vendorId` string.
+
+- **Fields:** vendorId, name, contactEmail, status (ACTIVE, INACTIVE, SUSPENDED)
+- **Code:** `Vendor` aggregate root in Vendor Service
+- **Not called:** Supplier, Partner, Funder
+
+---
+
+### Funding Proposal
+A draft funding agreement submitted by a Vendor before a Campaign is published. A Funding Proposal must be approved before a Campaign with `totalAmount > approvalThreshold` can transition to ACTIVE.
+
+- **Lifecycle:** DRAFT → SUBMITTED → APPROVED | REJECTED
+- **Code:** `FundingProposal` entity in Vendor Service
+- **Not called:** Funding Request, Budget Request
+
+---
+
+### Approval
+The confirmation by an authorised MX role that a Funding Proposal meets budget governance rules. Required for campaigns above the Approval Threshold.
+
+- **Code:** `Approval` entity in Vendor Service
+- **Not called:** Sign-off, Authorisation, Green-light
+
+---
+
+### Approval Threshold
+The budget amount above which a Campaign requires an Approval before it can be published. Currently set at $50,000.
+
+- **Rule:** If `campaign.budget.totalAmount >= 50000` → Campaign cannot publish without `FundingApproved` event
+- **Campaign lifecycle with threshold:** `DRAFT → PENDING_APPROVAL → ACTIVE`
+- **Campaign lifecycle without threshold:** `DRAFT → ACTIVE`
+- **Code:** configuration value in Vendor Service
+
+---
+
+### Predicted Lift
+A forecasted lift value calculated before a Campaign launches, based on historical category benchmarks and promotion type. Distinct from `Lift` which is actual measured lift post-launch.
+
+- **Formula:** `predictedLift = categoryBaseline × seasonFactor × promoTypeFactor`
+- **Code:** `PredictedLift` value object in Vendor Service
+- **Not called:** Estimated Lift, Forecast, Projection
+
+---
+
+### Burn Velocity
+The rate at which a Campaign's budget is being consumed, expressed as money per day. Used by Vendor Service forecasting to predict when a Campaign will exhaust its budget.
+
+- **Formula:** `burnVelocity = burnedAmount / daysSinceStart`
+- **Derived field:** calculated by Analytics Service, consumed by Vendor Service
+- **Not called:** Burn Rate, Spend Rate
+
+---
+
+### Notification Preference
+A per-role configuration defining which domain events trigger which delivery channel (email, WebSocket, webhook) for a given tenant role.
+
+- **Roles:** MX_TEAM, STORE_MANAGER, VENDOR_CONTACT
+- **Channels:** EMAIL, WEBSOCKET, WEBHOOK
+- **Code:** `NotificationPreference` entity in Notification Service
+- **Not called:** Alert Setting, Notification Config
+
+---
+
+### Delivery Channel
+The mechanism through which a Notification is sent to its recipient.
+
+- **Values:** `EMAIL`, `WEBSOCKET` (real-time in-app), `WEBHOOK` (external system push)
+- **Code:** `DeliveryChannel` enum in Notification Service
+- **Not called:** Notification Type, Alert Method
+
+---
+
 ## What Not to Say
 
 | ❌ Do not say | ✅ Say instead |
@@ -266,6 +358,14 @@ A document written when a bug is found, explaining what the bug is, why it was i
 | Product | UPC or Category |
 | User | Customer (CX) or Merchandiser (MX) |
 | Cap | Budget |
+| Supplier | Vendor |
+| Funding Request | Funding Proposal |
+| Sign-off | Approval |
+| Burn Rate | Burn Velocity |
+| Estimated Lift | Predicted Lift |
+| Location / Site | Store |
+| Store Owner | Store Manager |
+| Alert Setting | Notification Preference |
 | Level / Grade | Loyalty Tier |
 | Transaction | Redemption |
 | Dupe / Double | Duplicate Redemption |

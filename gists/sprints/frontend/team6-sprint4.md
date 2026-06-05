@@ -1,6 +1,6 @@
 # Team 6 — Frontend Dashboard — Sprint 4
 
-> Type: Demo Preparation + Full Integration
+> Type: Polish + Demo Readiness
 > Duration: 2 hours
 > Skills: sdd-spec-writer, frontend-guide, pr-reviewer
 
